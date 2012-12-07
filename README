@@ -1,0 +1,8 @@
+A simple perl script which checks the BTN advent calendar for you.
+The script won't perform any login, so you will have to provide existing cookies in the following files:
+
+	PHPSESSID.txt
+	__cfduid.txt
+	keeplogged.txt
+
+You can easily find out those cookie values within your browser.
