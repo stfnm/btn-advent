@@ -1,7 +1,0 @@
-A simple perl script which checks the BTN advent calendar for you.
-
-The script won't perform any login, so you will have to provide existing cookies yourself in the following file:
-
-	cookies.txt (Netscape HTTP Cookie File format)
-
-https://chrome.google.com/webstore/detail/cookietxt-export/lopabhfecdfhgogdbojmaicoicjekelh/related can be helpful.
