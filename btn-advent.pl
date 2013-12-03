@@ -19,23 +19,43 @@
 
 use strict;
 use warnings;
+use Getopt::Long;
 use WWW::Curl::Easy;
 use POSIX qw(strftime);
 
-# Time interval in seconds
-my $INTERVAL = 5 * 60;
+# Options
+my $OPT_INTERVAL = 5 * 60;
+my $OPT_COOKIES = "cookies.txt";
 
-# Cookies file
-my $COOKIES = "cookies.txt";
+GetOptions(
+	'cookies=s' => \$OPT_COOKIES,
+	'interval=i' => \$OPT_INTERVAL,
+	'help' => \&help,
+);
 
-# Subroutine for logging
+sub help
+{
+	print<<__EOH__;
+Usage of $0:
+
+	-h, --help
+		Print help message and quit.
+
+	-c, --cookies=<file name>
+		Cookies file in Netscape HTTP Cookie File format. (default: cookies.txt)
+
+	-i, --interval=<time>
+		Time in seconds until retry. (default: 300)
+
+__EOH__
+	exit;
+}
+
 sub verbose
 {
 	print strftime("[%F %T] ", localtime());
 	print @_;
 }
-
-print "Time interval is $INTERVAL seconds...\n";
 
 # Main infinite loop
 for (;;) {
@@ -44,10 +64,10 @@ for (;;) {
 		my $curl = WWW::Curl::Easy->new;
 		my $response_body;
 
-		$curl->setopt(CURLOPT_HEADER,1);
+		$curl->setopt(CURLOPT_HEADER, 1);
 		$curl->setopt(CURLOPT_URL, 'https://broadcasthe.net/advent.php?action=claimprize');
-		$curl->setopt(CURLOPT_COOKIEFILE, $COOKIES);
-		$curl->setopt(CURLOPT_COOKIEJAR, $COOKIES);
+		$curl->setopt(CURLOPT_COOKIEFILE, $OPT_COOKIES);
+		$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 		$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
 		my $retcode = $curl->perform();
@@ -61,10 +81,10 @@ for (;;) {
 				verbose("$response_body\n");
 			}
 		} else {
-			verbose("An error happened: $retcode ".$curl->strerror($retcode)." ".$curl->errbuf."\n");
+			verbose("An error happened: $retcode " . $curl->strerror($retcode) . " " . $curl->errbuf . "\n");
 		}
 	}
 
 	# Now we gotta sleep for a bit...
-	sleep($INTERVAL);
+	sleep($OPT_INTERVAL);
 }
