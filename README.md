@@ -16,7 +16,7 @@ $ ./btn-advent.pl --cookies btn.txt
 ```
 
 ## License
-Copyright (C) 2012  stfn <stfnmd@gmail.com>
+Copyright (C) 2012-2013  stfn <stfnmd@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

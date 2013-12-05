@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 #
-# Copyright (C) 2012  stfn <stfnmd@gmail.com>
+# Copyright (C) 2012-2013  stfn <stfnmd@gmail.com>
+# https://github.com/stfnm/btn-advent
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
