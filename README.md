@@ -1,11 +1,19 @@
 # btn-advent
 A simple perl script which checks the BTN advent calendar for you.
 
-The script won't perform any login on its own, so you will have to provide existing cookies yourself in the file `cookies.txt` within your working directory. (Netscape HTTP Cookie File format)
+The script won't perform any login on its own, so you will have to provide existing cookies yourself in Netscape HTTP Cookie File format.
 
 To retrieve the cookies the following browser addons might be helpful:
 * https://chrome.google.com/webstore/detail/cookietxt-export/lopabhfecdfhgogdbojmaicoicjekelh
 * https://addons.mozilla.org/de/firefox/addon/export-cookies/
+
+## Dependencies
+* [WWW::Curl](http://search.cpan.org/~szbalint/WWW-Curl/lib/WWW/Curl.pm)
+
+## Usage Example
+```
+$ ./btn-advent.pl --cookies btn.txt
+```
 
 ## License
 Copyright (C) 2012  stfn <stfnmd@gmail.com>
