@@ -27,11 +27,13 @@ use POSIX qw(strftime);
 # Options
 my $OPT_INTERVAL = 5 * 60;
 my $OPT_COOKIES = "cookies.txt";
+my $OPT_QUIET = 0;
 
 GetOptions(
+	'help' => \&help,
 	'cookies=s' => \$OPT_COOKIES,
 	'interval=i' => \$OPT_INTERVAL,
-	'help' => \&help,
+	'quiet' => \$OPT_QUIET,
 );
 
 sub help
@@ -48,12 +50,16 @@ Usage of $0:
 	-i, --interval=<time>
 		Time in seconds until retry. (default: 300)
 
+	-q, --quiet
+		Turn off any output.
+
 __EOH__
 	exit;
 }
 
 sub verbose
 {
+	return if ($OPT_QUIET);
 	print strftime("[%F %T] ", localtime());
 	print @_;
 }
