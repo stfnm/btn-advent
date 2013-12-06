@@ -78,7 +78,7 @@ sub btn_login($$)
 	$curl->setopt(CURLOPT_COOKIEFILE, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_POST, 1);
-	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . CGI::escape($user) . "&password=" . CGI::escape($password));
+	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . CGI::escape($user) . "&password=" . CGI::escape($password) . "&keeplogged=1");
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
 	$curl->perform();
