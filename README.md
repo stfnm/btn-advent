@@ -14,7 +14,7 @@ To retrieve your cookies the following browser addons might be helpful:
 ```
 $ ./btn-advent.pl --login username:password
 ```
-or
+or if you already have your cookies:
 ```
 $ ./btn-advent.pl --cookies btn.txt
 ```
