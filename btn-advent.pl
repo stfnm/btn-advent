@@ -26,7 +26,6 @@ use WWW::Curl::Easy;
 use POSIX qw(strftime);
 
 # Options
-my $OPT_INTERVAL = 5 * 60;
 my $OPT_COOKIES = "cookies.txt";
 my $OPT_QUIET = 0;
 my $OPT_LOGIN = "";
@@ -35,7 +34,6 @@ GetOptions(
 	'help' => \&help,
 	'login=s' => \$OPT_LOGIN,
 	'cookies=s' => \$OPT_COOKIES,
-	'interval=i' => \$OPT_INTERVAL,
 	'quiet' => \$OPT_QUIET,
 );
 
@@ -54,9 +52,6 @@ Usage of $0:
 
 	-c, --cookies=<file name>
 		Cookies file in Netscape HTTP Cookie File format. (default: cookies.txt)
-
-	-i, --interval=<time>
-		Time in seconds until retry. (default: 300)
 
 	-q, --quiet
 		Turn off any output.
@@ -93,6 +88,7 @@ sub btn_advent
 {
 	my $curl = WWW::Curl::Easy->new;
 	my $response_body;
+	my $time = 5 * 60;
 
 	$curl->setopt(CURLOPT_HEADER, 1);
 	$curl->setopt(CURLOPT_URL, 'https://broadcasthe.net/advent.php?action=claimprize');
@@ -102,17 +98,25 @@ sub btn_advent
 
 	my $retcode = $curl->perform();
 
-	if ($retcode == 0) {
-		if ($response_body =~ /<b>(\d+d \d+h \d+m \d+s)<\/b>/) {
-			verbose("Time left until next claim: $1\n");
-		} elsif ($response_body =~ /You have received the following prize:.*?<h1>(.*?)<\/h1>/) {
-			verbose("Yay, you got the following prize: $1\n");
-		} else {
-			verbose("$response_body\n");
+	if ($retcode == 0 && $response_body =~ /<b>(\d+d \d+h \d+m \d+s)<\/b>/) {
+		my $timestr = $1;
+		verbose("Time left until next claim: $timestr\n");
+
+		if ($timestr =~ /(\d+)d (\d+)h (\d+)m (\d+)s/) {
+			$time = $1 * 24 * 60 * 60;
+			$time += $2 * 60 * 60;
+			$time += $3 * 60;
+			$time += $4;
 		}
+
+	} elsif ($retcode == 0 && $response_body =~ /You have received the following prize:.*?<h1>(.*?)<\/h1>/) {
+		verbose("Yay, you got the following prize: $1\n");
+		$time = 24 * 60 * 60;
 	} else {
-		verbose("An error happened: $retcode " . $curl->strerror($retcode) . " " . $curl->errbuf . "\n");
+		verbose("Oops, something went wrong this time. Maybe the website is down?\n");
 	}
+
+	return $time;
 }
 
 sub main
@@ -123,9 +127,9 @@ sub main
 	}
 
 	for (;;) {
-		btn_advent();
+		my $time = btn_advent();
 
-		# Now we gotta sleep for a bit...
-		sleep($OPT_INTERVAL);
+		verbose("Sleeping for $time seconds...\n");
+		sleep($time);
 	}
 }
