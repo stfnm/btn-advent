@@ -16,7 +16,7 @@ $ ./btn-advent.pl --login username:password
 ```
 or if you already have your cookies:
 ```
-$ ./btn-advent.pl --cookies btn.txt
+$ ./btn-advent.pl --cookies cookies.txt
 ```
 
 ## License
