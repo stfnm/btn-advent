@@ -77,9 +77,9 @@ sub btn_login($$)
 	$curl->setopt(CURLOPT_URL, 'https://broadcasthe.net/login.php');
 	$curl->setopt(CURLOPT_COOKIEFILE, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
+	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 	$curl->setopt(CURLOPT_POST, 1);
 	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . CGI::escape($user) . "&password=" . CGI::escape($password) . "&keeplogged=1");
-	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
 	$curl->perform();
 }
@@ -88,13 +88,14 @@ sub btn_advent
 {
 	my $curl = WWW::Curl::Easy->new;
 	my $response_body;
-	my $time = 5 * 60;
+	my $time = 0;
 
 	$curl->setopt(CURLOPT_HEADER, 1);
 	$curl->setopt(CURLOPT_URL, 'https://broadcasthe.net/advent.php?action=claimprize');
 	$curl->setopt(CURLOPT_COOKIEFILE, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+	$curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
 
 	my $retcode = $curl->perform();
 
@@ -112,8 +113,12 @@ sub btn_advent
 	} elsif ($retcode == 0 && $response_body =~ /You have received the following prize:.*?<h1>(.*?)<\/h1>/) {
 		verbose("Yay, you got the following prize: $1\n");
 		$time = 24 * 60 * 60;
+	} elsif ($retcode == 0 && $response_body =~ /Click.+to claim them!/) {
+		verbose("Sorry, the advent calendar is over. You may claim your gold stars if you have any!\n");
+		$time = -1;
 	} else {
 		verbose("Oops, something went wrong this time. Maybe the website is down?\n");
+		$time = 5 * 60;
 	}
 
 	return $time;
@@ -129,7 +134,11 @@ sub main
 	for (;;) {
 		my $time = btn_advent();
 
-		verbose("Sleeping for $time seconds...\n");
-		sleep($time);
+		if ($time >= 0) {
+			verbose("Sleeping for $time seconds...\n");
+			sleep($time);
+		} else {
+			last;
+		}
 	}
 }
