@@ -29,11 +29,13 @@ use POSIX qw(strftime);
 my $OPT_COOKIES = "cookies.txt";
 my $OPT_QUIET = 0;
 my $OPT_LOGIN = "";
+my $OPT_USERAGENT = "";
 
 GetOptions(
 	'help' => \&help,
 	'login=s' => \$OPT_LOGIN,
 	'cookies=s' => \$OPT_COOKIES,
+	'useragent=s' => \$OPT_USERAGENT,
 	'quiet' => \$OPT_QUIET,
 );
 
@@ -46,13 +48,12 @@ Usage of $0:
 
 	-h, --help
 		Print help message and quit.
-
 	-l, --login=<username:password>
 		Perform login with the provided username and password.
-
 	-c, --cookies=<file name>
 		Cookies file in Netscape HTTP Cookie File format. (default: cookies.txt)
-
+	-u, --useragent=<user agent string>
+		User agent string to use.
 	-q, --quiet
 		Turn off any output.
 
@@ -78,6 +79,7 @@ sub btn_login($$)
 	$curl->setopt(CURLOPT_COOKIEFILE, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+	$curl->setopt(CURLOPT_USERAGENT, $OPT_USERAGENT) if (length($OPT_USERAGENT) > 0);
 	$curl->setopt(CURLOPT_POST, 1);
 	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . CGI::escape($user) . "&password=" . CGI::escape($password) . "&keeplogged=1");
 
@@ -96,7 +98,7 @@ sub btn_advent
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 	$curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
-	$curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0');
+	$curl->setopt(CURLOPT_USERAGENT, $OPT_USERAGENT) if (length($OPT_USERAGENT) > 0);
 
 	my $retcode = $curl->perform();
 
