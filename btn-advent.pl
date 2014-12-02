@@ -96,6 +96,7 @@ sub btn_advent
 	$curl->setopt(CURLOPT_COOKIEJAR, $OPT_COOKIES);
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 	$curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
+	$curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0');
 
 	my $retcode = $curl->perform();
 
