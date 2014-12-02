@@ -19,6 +19,17 @@ or if you already have your cookies:
 $ ./btn-advent.pl --cookies cookies.txt
 ```
 
+## Troubleshooting
+Unfortunately due to CloudFlare's protection stuff the "--login" parameter doesn't work anymore.
+You will have to provide existing cookies from your browser. Please make sure you also have "keep logged in" enabled.
+
+Moreover it seems that CloudFlare sticks the cookie to your IP address as well as your user agent string,
+so you will have to take care of that too by using the same IP and supplying the same user agent string as you used with your browser.
+You can find out about it for example by visiting http://whatsmyuseragent.com/ and supply it to the script like this:
+```
+$ ./btn-advent.pl --cookies cookies.txt --useragent "Mozilla/5.0 (X11; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0"
+```
+
 ## License
 Copyright (C) 2012-2014  stfn <stfnmd@gmail.com>
 
