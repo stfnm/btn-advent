@@ -30,6 +30,7 @@ my $OPT_COOKIES = "cookies.txt";
 my $OPT_QUIET = 0;
 my $OPT_LOGIN = "";
 my $OPT_USERAGENT = "";
+my $OPT_DEBUG = 0;
 
 GetOptions(
 	'help' => \&help,
@@ -37,6 +38,7 @@ GetOptions(
 	'cookies=s' => \$OPT_COOKIES,
 	'useragent=s' => \$OPT_USERAGENT,
 	'quiet' => \$OPT_QUIET,
+	'debug' => \$OPT_DEBUG,
 );
 
 main();
@@ -56,6 +58,8 @@ Usage of $0:
 		User agent string to use.
 	-q, --quiet
 		Turn off any output.
+	-d, --debug
+		Enable debug output.
 
 __EOH__
 	exit;
@@ -122,6 +126,8 @@ sub btn_advent
 	} else {
 		verbose("Oops, something went wrong this time. Maybe the website is down?\n");
 		$time = 5 * 60;
+
+		print $response_body if ($OPT_DEBUG);
 	}
 
 	return $time;
