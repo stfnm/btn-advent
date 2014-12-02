@@ -20,7 +20,6 @@
 
 use strict;
 use warnings;
-use CGI;
 use Getopt::Long;
 use WWW::Curl::Easy;
 use POSIX qw(strftime);
@@ -72,6 +71,15 @@ sub verbose
 	print @_;
 }
 
+sub url_escape($)
+{
+	my $toencode = $_[0];
+	return undef unless (defined($toencode));
+	utf8::encode($toencode) if (utf8::is_utf8($toencode));
+	$toencode =~ s/([^a-zA-Z0-9_.~-])/uc sprintf("%%%02x",ord($1))/eg;
+	return $toencode;
+}
+
 sub btn_login($$)
 {
 	my ($user, $password) = @_;
@@ -85,7 +93,7 @@ sub btn_login($$)
 	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 	$curl->setopt(CURLOPT_USERAGENT, $OPT_USERAGENT) if (length($OPT_USERAGENT) > 0);
 	$curl->setopt(CURLOPT_POST, 1);
-	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . CGI::escape($user) . "&password=" . CGI::escape($password) . "&keeplogged=1");
+	$curl->setopt(CURLOPT_POSTFIELDS, "username=" . url_escape($user) . "&password=" . url_escape($password) . "&keeplogged=1");
 
 	$curl->perform();
 }
