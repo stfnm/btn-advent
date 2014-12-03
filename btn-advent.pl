@@ -29,6 +29,7 @@ my $OPT_COOKIES = "cookies.txt";
 my $OPT_QUIET = 0;
 my $OPT_LOGIN = "";
 my $OPT_USERAGENT = "";
+my $OPT_PUSHOVER = "";
 my $OPT_DEBUG = 0;
 
 GetOptions(
@@ -36,6 +37,7 @@ GetOptions(
 	'login=s' => \$OPT_LOGIN,
 	'cookies=s' => \$OPT_COOKIES,
 	'useragent=s' => \$OPT_USERAGENT,
+	'pushover=s' => \$OPT_PUSHOVER,
 	'quiet' => \$OPT_QUIET,
 	'debug' => \$OPT_DEBUG,
 );
@@ -55,6 +57,8 @@ Usage of $0:
 		Cookies file in Netscape HTTP Cookie File format. (default: cookies.txt)
 	-u, --useragent=<user agent string>
 		User agent string to use.
+	-p, --pushover=<token:user>
+		Send notification using pushover.net when you got a new prize.
 	-q, --quiet
 		Turn off any output.
 	-d, --debug
@@ -78,6 +82,48 @@ sub url_escape($)
 	utf8::encode($toencode) if (utf8::is_utf8($toencode));
 	$toencode =~ s/([^a-zA-Z0-9_.~-])/uc sprintf("%%%02x",ord($1))/eg;
 	return $toencode;
+}
+
+sub notify($)
+{
+	my $msg = $_[0];
+
+	if ($OPT_PUSHOVER =~ /(.+):(.+)/) {
+		my ($token, $user) = ($1, $2);
+		notify_pushover($token, $user, $msg, "btn-advent", "", "");
+	}
+}
+
+# https://pushover.net/api
+sub notify_pushover($$$$$$)
+{
+	my ($token, $user, $message, $title, $priority, $sound) = @_;
+
+	# Required API arguments
+	my @post = (
+		"token=" . url_escape($token),
+		"user=" . url_escape($user),
+		"message=" . url_escape($message),
+	);
+
+	# Optional API arguments
+	push(@post, "title=" . url_escape($title)) if ($title && length($title) > 0);
+	push(@post, "priority=" . url_escape($priority)) if ($priority && length($priority) > 0);
+	push(@post, "sound=" . url_escape($sound)) if ($sound && length($sound) > 0);
+
+	my $postfields = join(";", @post);
+
+	# Send HTTP POST
+	my $curl = WWW::Curl::Easy->new;
+	my $response_body;
+
+	$curl->setopt(CURLOPT_HEADER, 1);
+	$curl->setopt(CURLOPT_URL, 'https://api.pushover.net/1/messages.json');
+	$curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+	$curl->setopt(CURLOPT_POST, 1);
+	$curl->setopt(CURLOPT_POSTFIELDS, $postfields);
+
+	$curl->perform();
 }
 
 sub btn_login($$)
@@ -126,7 +172,9 @@ sub btn_advent
 		}
 
 	} elsif ($retcode == 0 && $response_body =~ /You have received the following prize:.*?<h1>(.*?)<\/h1>/) {
-		verbose("Yay, you got the following prize: $1\n");
+		my $msg = "Yay! You got the following prize: $1\n";
+		verbose($msg);
+		notify($msg);
 		$time = 24 * 60 * 60;
 	} elsif ($retcode == 0 && $response_body =~ /Click.+to claim them!/) {
 		verbose("Sorry, the advent calendar is over. You may claim your gold stars if you have any!\n");
