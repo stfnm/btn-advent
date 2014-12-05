@@ -148,7 +148,7 @@ sub btn_advent
 {
 	my $curl = WWW::Curl::Easy->new;
 	my $response_body;
-	my $time = 0;
+	my $time = -1;
 
 	$curl->setopt(CURLOPT_HEADER, 1);
 	$curl->setopt(CURLOPT_URL, 'https://broadcasthe.net/advent.php?action=claimprize');
@@ -170,12 +170,11 @@ sub btn_advent
 			$time += $3 * 60;
 			$time += $4;
 		}
-
 	} elsif ($retcode == 0 && $response_body =~ /You have received the following prize:.*?<h1>(.*?)<\/h1>/) {
 		my $msg = "Yay! You got the following prize: $1\n";
 		verbose($msg);
 		notify($msg);
-		$time = 24 * 60 * 60;
+		$time = 0;
 	} elsif ($retcode == 0 && $response_body =~ /Click.+to claim them!/) {
 		verbose("Sorry, the advent calendar is over. You may claim your gold stars if you have any!\n");
 		$time = -1;
@@ -199,9 +198,11 @@ sub main
 	for (;;) {
 		my $time = btn_advent();
 
-		if ($time >= 0) {
+		if ($time > 0) {
 			verbose("Sleeping for $time seconds...\n");
 			sleep($time);
+		} elsif ($time == 0) {
+			next;
 		} else {
 			last;
 		}
