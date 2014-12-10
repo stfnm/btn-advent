@@ -29,6 +29,7 @@ You can find out about it for example by visiting http://whatsmyuseragent.com/ a
 ```
 $ ./btn-advent.pl --cookies cookies.txt --useragent "Mozilla/5.0 (X11; Linux x86_64; rv:34.0) Gecko/20100101 Firefox/34.0"
 ```
+Also note that CloudFlare cookies only last 7 days.
 
 ## License
 Copyright (C) 2012-2014  stfn <stfnmd@gmail.com>
